@@ -6,3 +6,5 @@
 	The moddel of splitting the n pipes into m cells where m >> n would be a less efficiant algorithm than calculating times.
 23/3/2020:
 	Imported the code from project 1
+23/3/2020:
+	Got pynode to run proerly and imported the pipes.csv file

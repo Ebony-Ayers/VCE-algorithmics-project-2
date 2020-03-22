@@ -1,5 +1,6 @@
 #/usr/bin/python
 #Joseph Davies
+from pynode.main import *
 import ast
 import sys
 

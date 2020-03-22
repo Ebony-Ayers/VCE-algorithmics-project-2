@@ -1,3 +1,8 @@
 23/3/2020:
 	Added basic structure of the cell class.
 	The cell class is secion of a pipe which can receive a pressure wave and send it on.
+23/3/2020:
+	Removed the cell class.
+	The moddel of splitting the n pipes into m cells where m >> n would be a less efficiant algorithm than calculating times.
+23/3/2020:
+	

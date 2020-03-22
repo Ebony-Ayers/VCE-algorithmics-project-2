@@ -1,0 +1,3 @@
+23/3/2020:
+	Added basic structure of the cell class.
+	The cell class is secion of a pipe which can receive a pressure wave and send it on.

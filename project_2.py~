@@ -3,6 +3,7 @@
 from pynode.main import *
 import ast
 import sys
+import time
 
 node_1 = None
 node_2 = None
@@ -89,8 +90,13 @@ def on_click(node):
 		try:
 			active_edge = graph.edges_between(node_1, node_2)[0]
 			active_edge.set_color(Color.BLUE)
-		except:
+			start_time = time.time()
+			active_edge.traverse(initial_node=active_edge.source(), color=Color.RED, keep_path=True, length=10000.0)
+			end_time = time.time()
+			print("time taken:", str(end_time - start_time))
+		except Exception as e:
 			print("Cannot find edge between selected nodes")
+			print(e)
 			return
 			
 	if node_1 is not None and node_2 is not None:
@@ -141,7 +147,7 @@ def on_click(node):
 					new_edge = graph.add_edge(new_node, node_to_conect_to)
 					new_edge.set_weight(weight)
 				break_nodes.append(new_node)
-			elif new_thing_type == "b":
+			elif new_thing_type == "s":
 				things_to_reconect_to = list()
 				for edge in node_1.incident_edges():
 					things_to_reconect_to.append((edge.other_node(node_1), edge.weight()))

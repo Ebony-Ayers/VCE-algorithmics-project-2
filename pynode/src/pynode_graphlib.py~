@@ -292,7 +292,7 @@ class Edge:
         arg_width = kwds["width"] if "width" in kwds else args[1] if len(args) > 1 else self._width * 2
         pynode_core.add_event(pynode_core.Event(pynode_core.js_edge_highlight, [self._internal_id, arg_width, arg_color.hex_string() if arg_color is not None else None]), self)
 
-    def traverse(self, initial_node=None, color=Color.RED, keep_path=True, length = 1.0):
+    def traverse(self, initial_node=None, color=Color.RED, keep_path=True, length = 1.0f):
         if not graph.has_edge(self): return
         start = graph.node(initial_node) if initial_node is not None else self._source
         if not graph.has_node(start): return

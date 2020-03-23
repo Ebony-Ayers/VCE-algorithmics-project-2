@@ -257,9 +257,9 @@ function js_edge_highlight(edge_id, width, color) {
     }
 }
 
-function js_edge_traverse(edge_id, initial_node_id, color, keep_path, length) {
+function js_edge_traverse(edge_id, initial_node_id, color, keep_path) {
     if (greuler_instance.graph.hasEdge({id: edge_id})) {
-        greuler_instance.selector.traverseEdge({id: edge_id}, {stroke: color, keepStroke: keep_path, duration: length}, initial_node_id);
+        greuler_instance.selector.traverseEdge({id: edge_id}, {stroke: color, keepStroke: keep_path}, initial_node_id);
     }
 }
 

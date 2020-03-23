@@ -8,5 +8,8 @@
 	Imported the code from project 1
 23/3/2020:
 	Got pynode to run proerly and imported the pipes.csv file
-23/3/202:
+23/3/2020:
 	Added functionality for the user to place breaks and sensors.
+23/3/2020:
+	Added a new parameter to pynode::Edge.traverse which is how long the traverse will take.
+	I belive this value is in miliseconds but I am not sure

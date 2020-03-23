@@ -3,6 +3,7 @@
 from pynode.main import *
 import ast
 import sys
+import time
 
 node_1 = None
 node_2 = None
@@ -89,8 +90,12 @@ def on_click(node):
 		try:
 			active_edge = graph.edges_between(node_1, node_2)[0]
 			active_edge.set_color(Color.BLUE)
-		except:
+			print("start")
+			active_edge.traverse(initial_node=active_edge.source(), color=Color.RED, keep_path=True, length=10000.0)
+			
+		except Exception as e:
 			print("Cannot find edge between selected nodes")
+			print(e)
 			return
 			
 	if node_1 is not None and node_2 is not None:

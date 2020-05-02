@@ -13,3 +13,5 @@
 23/3/2020:
 	Added a new parameter to pynode::Edge.traverse which is how long the traverse will take.
 	I belive this value is in miliseconds but I am not sure
+2/5/2020:
+	Disabled the ability to select the clear node

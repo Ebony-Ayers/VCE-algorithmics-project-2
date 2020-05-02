@@ -8,7 +8,14 @@ import time
 node_1 = None
 node_2 = None
 active_edge = None
+
+is_running  = False
+
 node_clear = None
+node_start = None
+node_time = None
+
+time = 0
 
 sensor_nodes = list()
 break_nodes = list()
@@ -34,16 +41,17 @@ def reset():
 	active_edge = None
 	
 def is_float(posible_int):
-	output = False
+	output = None
 	try:
 		output = float(posible_int)
 	except:
-		output = False
+		output = None
 	return output
 	
-def prompt(request_length = False):
+def prompt(request_length = False, request_time = False):
 	first = None
 	second = None
+	third = None
 	while True:
 		print("What would you like to do:")
 		input_1 = input("Add a break (b), add a sensor (s), cancel (c): ").lower().rstrip()
@@ -54,111 +62,155 @@ def prompt(request_length = False):
 			first = input_1
 			break
 		elif input_1 == "c":
-			return (None, None)
+			return (None, None, None)
 		else:
 			print("Invalid Input")
 	
 	if request_length:
 		while True:
 			input_2 = is_float(input("How far along the pipe do you want to add it in meters: ").lower().rstrip())
-			if input_2 != False:
+			if input_2 != None:
 				second = input_2
 				break
 			else:
 				print("Invalid Input")
+	
+	if request_time and first == "b":
+		while True:
+			input_3 = is_float(input("At what time does the break happen: ").lower().rstrip())
+			if input_3 != None:
+				third = input_3
+				break
+			else:
+				print("Invalid Input")
 		
-	return (first, second)
+	return (first, second, third)
 
 def on_click(node):
-	global node_1, node_2, active_edge
+	global node_1, node_2, active_edge, is_running
 	print("Clicked on node \"{}\"".format(node.id()))
 	
-	if node is node_clear:
-		reset()
-		
-	if node_1 is not None and node_2 is not None:
-		reset()
+	if node is node_start:
+		is_running = True
+		simulate()
 	
-	if node_1 is None:
-		node_1 = node
-		node_1.set_color(Color.YELLOW)
-	elif node_2 is None:
-		node_2 = node
-		node_2.set_color(Color.GREEN)
-		
-	if node_1 is not None and node_2 is not None and node_1 is not node_2:
-		try:
-			active_edge = graph.edges_between(node_1, node_2)[0]
-			active_edge.set_color(Color.BLUE)
-			start_time = time.time()
-			active_edge.traverse(initial_node=active_edge.source(), color=Color.RED, keep_path=True, length=10000.0)
-			end_time = time.time()
-			print("time taken:", str(end_time - start_time))
-		except Exception as e:
-			print("Cannot find edge between selected nodes")
-			print(e)
-			return
-			
-	if node_1 is not None and node_2 is not None:
-		if active_edge is not None:
-			new_thing_type, new_thing_length = prompt(True)
-		else:
-			new_thing_type, new_thing_length = prompt(False)
-		
-		if new_thing_type is None and new_thing_length is None:
+	if not is_running:
+		if node is node_clear:
 			reset()
-			return
+			
+		if node_1 is not None and node_2 is not None:
+			reset()
 		
-		if new_thing_length != None:
-			if new_thing_type == "b":
-				new_node = graph.add_node("Break: " + str(len(break_nodes) + 1))
-				new_node.set_color(Color(50, 100, 200))
-				length_1 = round(new_thing_length, 1)
-				length_2 = round(active_edge.weight() - new_thing_length, 1)
-				new_edge_1 = graph.add_edge(node_1, new_node)
-				new_edge_1.set_weight(length_1)
-				new_edge_2 = graph.add_edge(new_node, node_2)
-				new_edge_2.set_weight(length_2)
-				graph.remove_edge(active_edge)
-				active_edge = None
-				break_nodes.append(new_node)
-			elif new_thing_type == "s":
-				new_node = graph.add_node("Sensor: " + str(len(sensor_nodes) + 1))
-				new_node.set_color(Color(150, 50, 150))
-				length_1 = round(new_thing_length, 1)
-				length_2 = round(active_edge.weight() - new_thing_length, 1)
-				new_edge_1 = graph.add_edge(node_1, new_node)
-				new_edge_1.set_weight(length_1)
-				new_edge_2 = graph.add_edge(new_node, node_2)
-				new_edge_2.set_weight(length_2)
-				graph.remove_edge(active_edge)
-				active_edge = None
-				sensor_nodes.append(new_node)
-		else:
-			if new_thing_type == "b":
-				things_to_reconect_to = list()
-				for edge in node_1.incident_edges():
-					things_to_reconect_to.append((edge.other_node(node_1), edge.weight()))
-				graph.remove_node(node_1)
-				new_node = graph.add_node("Break: " + str(len(break_nodes) + 1))
-				new_node.set_color(Color(50, 100, 200))
-				for thing in things_to_reconect_to:
-					node_to_conect_to, weight = thing
-					new_edge = graph.add_edge(new_node, node_to_conect_to)
-					new_edge.set_weight(weight)
-				break_nodes.append(new_node)
-			elif new_thing_type == "s":
-				things_to_reconect_to = list()
-				for edge in node_1.incident_edges():
-					things_to_reconect_to.append((edge.other_node(node_1), edge.weight()))
-				graph.remove_node(node_1)
-				new_node = graph.add_node("Sensor: " + str(len(sensor_nodes) + 1))
-				new_node.set_color(Color(150, 50, 150))
-				for thing in things_to_reconect_to:
-					node_to_conect_to, weight = thing
-					new_edge = graph.add_edge(new_node, node_to_conect_to)
-					new_edge.set_weight(weight)
-				sensor_nodes.append(new_node)
+		if node_1 is None:
+			node_1 = node
+			node_1.set_color(Color.YELLOW)
+		elif node_2 is None:
+			node_2 = node
+			node_2.set_color(Color.GREEN)
+			
+		if node_1 is not None and node_2 is not None and node_1 is not node_2:
+			try:
+				active_edge = graph.edges_between(node_1, node_2)[0]
+				active_edge.set_color(Color.BLUE)
+			except Exception as e:
+				print("Cannot find edge between selected nodes")
+				print(e)
+				return
+				
+		if node_1 is not None and node_2 is not None:
+			if active_edge is not None:
+				new_thing_type, new_thing_length, new_thing_time = prompt(True, True)
+			else:
+				new_thing_type, new_thing_length, new_thing_time = prompt(False, True)
+			
+			if new_thing_type is None and new_thing_length is None:
+				reset()
+				return
+			
+			if new_thing_length != None:
+				if new_thing_type == "b":
+					new_node = graph.add_node("Break: " + str(len(break_nodes) + 1))
+					new_node.set_color(Color(50, 100, 200))
+					new_node.set_attribute("time", new_thing_time)
+					length_1 = round(new_thing_length, 1)
+					length_2 = round(active_edge.weight() - new_thing_length, 1)
+					new_edge_1 = graph.add_edge(node_1, new_node)
+					new_edge_1.set_weight(length_1)
+					new_edge_2 = graph.add_edge(new_node, node_2)
+					new_edge_2.set_weight(length_2)
+					graph.remove_edge(active_edge)
+					active_edge = None
+					break_nodes.append(new_node)
+				elif new_thing_type == "s":
+					new_node = graph.add_node("Sensor: " + str(len(sensor_nodes) + 1))
+					new_node.set_color(Color(150, 50, 150))
+					length_1 = round(new_thing_length, 1)
+					length_2 = round(active_edge.weight() - new_thing_length, 1)
+					new_edge_1 = graph.add_edge(node_1, new_node)
+					new_edge_1.set_weight(length_1)
+					new_edge_2 = graph.add_edge(new_node, node_2)
+					new_edge_2.set_weight(length_2)
+					graph.remove_edge(active_edge)
+					active_edge = None
+					sensor_nodes.append(new_node)
+			else:
+				if new_thing_type == "b":
+					things_to_reconect_to = list()
+					for edge in node_1.incident_edges():
+						things_to_reconect_to.append((edge.other_node(node_1), edge.weight()))
+					graph.remove_node(node_1)
+					new_node = graph.add_node("Break: " + str(len(break_nodes) + 1))
+					new_node.set_color(Color(50, 100, 200))
+					new_node.set_attribute("time", new_thing_time)
+					for thing in things_to_reconect_to:
+						node_to_conect_to, weight = thing
+						new_edge = graph.add_edge(new_node, node_to_conect_to)
+						new_edge.set_weight(weight)
+					break_nodes.append(new_node)
+				elif new_thing_type == "s":
+					things_to_reconect_to = list()
+					for edge in node_1.incident_edges():
+						things_to_reconect_to.append((edge.other_node(node_1), edge.weight()))
+					graph.remove_node(node_1)
+					new_node = graph.add_node("Sensor: " + str(len(sensor_nodes) + 1))
+					new_node.set_color(Color(150, 50, 150))
+					for thing in things_to_reconect_to:
+						node_to_conect_to, weight = thing
+						new_edge = graph.add_edge(new_node, node_to_conect_to)
+						new_edge.set_weight(weight)
+					sensor_nodes.append(new_node)
+
+def get_heighest_piority(start_time):
+	if len(break_nodes) == 0:
+		Print("Error: not break nodes found")
+		return None
+	i = 0
+	min_time = None
+	min_index = 0
+	while i < len(break_nodes):
+		time = break_nodes[i].attribute("time")
+		if min_time == None and break_nodes[i].attribute("time") > start_time:
+			min_time = break_nodes[i].attribute("time")
+			min_index = i
+		elif (time < min_time and time > start_time):
+			min_time = break_nodes[i].attribute("time")
+			min_index = i
+		i += 1
+	
+	if min_index == -1:
+		print("Error: could not find node with highest piority")
+		return None
+	
+	return break_nodes[i]
+		
+def simulate():
+	global time
+	print("starting simulation")
+	
+	time = 0
+	
+	next_node = get_heighest_piority(time)
+	print(next_node.id())
 		
 nodes = dict()
 def get_node(name):
@@ -176,11 +228,19 @@ def get_edge(node_1, node_2):
 		return edge
 
 def run():
-	global node_clear
+	global node_clear, node_start, node_time
 	
 	node_clear = graph.add_node("Clear")
 	node_clear.set_color(Color.RED)
 	node_clear.set_position(50, 480)
+	
+	node_start = graph.add_node("Start")
+	node_start.set_color(Color.RED)
+	node_start.set_position(100, 480)
+	
+	node_time = graph.add_node("t=0")
+	node_time.set_color(Color.BLACK)
+	node_time.set_position(150, 480)
 	
 	length_index = 2
 	diameter_index = 3

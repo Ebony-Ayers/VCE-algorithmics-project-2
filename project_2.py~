@@ -97,6 +97,7 @@ def on_click(node):
 	if not is_running:
 		if node is node_clear:
 			reset()
+			return
 			
 		if node_1 is not None and node_2 is not None:
 			reset()

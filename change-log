@@ -23,3 +23,5 @@
 	Added proper evaluation of CLI flags
 	Started propogating wave
 	Fixed new edges created around new node not having required attributes
+3/5/2020:
+	Disable starting the simulation twice

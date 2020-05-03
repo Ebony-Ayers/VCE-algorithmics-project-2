@@ -242,7 +242,7 @@ def on_click(node):
 						new_edge.set_weight(weight)
 						new_edge.set_attribute("length", weight)
 						new_edge.set_attribute("inner radius", pipe_i_radius)
-						new_edge.set_attribute("speed", wave_speed
+						new_edge.set_attribute("speed", wave_speed)
 					#record the break node
 					break_nodes.append(new_node)
 				elif new_thing_type == "s":

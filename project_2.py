@@ -120,7 +120,7 @@ def on_click(node):
 	print("Clicked on node \"{}\"".format(node.id()))
 	
 	#start node
-	if node is node_start:
+	if node is node_start and not is_running:
 		is_running = True
 		simulate()
 		return

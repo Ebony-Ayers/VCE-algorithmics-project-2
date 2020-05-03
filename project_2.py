@@ -299,6 +299,7 @@ def simulation_itteration():
 		node_time.set_value("t={0}".format(t_node_val))
 		time_node_value = t_node_val
 	
+	#if there is nothing left in the queue signal to stop itterating
 	if wave_propogation_pqueue.length() == 0: return False
 	
 	hit_time = wave_propogation_pqueue.front_priority()
@@ -319,7 +320,7 @@ def simulation_itteration():
 			if other_node is node_from: continue
 			
 			#time in seconds for the wave to move along the pipe
-			wave_time  = edge.attribute("length") / edge.attribute("speed")
+			wave_time = edge.attribute("length") / edge.attribute("speed")
 			#convert to miliseconds
 			wave_time_ms = wave_time * 1000
 			#multiply by animation time
@@ -387,7 +388,7 @@ def run():
 				first = False
 				continue
 			#split the data into columns
-			data = line.rstrip().lstrip().split(',')
+			data = line.rstrip().lstrip().replace("\t","").split(',')
 			#where posible evaluate literals
 			i = 0
 			while i < len(data):

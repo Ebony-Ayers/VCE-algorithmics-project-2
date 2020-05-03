@@ -1,0 +1,98 @@
+function prompt:
+	Ask the user what they want to do
+
+variables: node1, node2
+function on_click:
+	if node1 has not been assigned: assign node1 to be the node the user clicked on
+	if node1 has been assigned: assign node2 to be the ndoe the user clicked on
+	
+	#when the user has clicked on two nodes
+	if node1 and node2 have been assigned:
+		
+		#the user has selected two different nodes
+		if node1 and node2 are different:
+			edge = get the edge between node1 and node2
+		
+		#the user has selected the same node twice
+		if node1 and node2 are the same:
+			edge = not defined
+		
+		prompt the user for what they want to do
+		
+		#if the user has selected two different nodes
+		if edge is defined:
+			split the edge into two edges with a node inbetween them
+			assign the length according to what the user specified
+			keep all value the same
+			if the user wants a break make the new node a break
+			if the user wants a sensor make the new node a sensor
+		#if the user has selected the same node
+		if edge is not defined:
+			delete the node the user selected
+			place a new node which is either a break or a sensor based on the user request
+			reconnect all the edges with the values they had
+
+#this only initialises the simulation the acutal simulation is run with the simulation_itteration function
+#wave_propogation_pqueue is a priority queue which connects nodes with when the wave will reach them
+variables: wave_propogation_pqueue, start_time
+function simulate:
+	add all the break nodes nodes the user placed into the wave_propogation_pqueue with their time
+	
+	start_time = the current time
+	
+	run the simulation_itteration function untill it signals to stop
+
+#in theory if the simulation_itteration function is run often enough there will be effectivly no delay between when a node should be checked and when it acutally is
+#in practice I estimate the function is called about 1 million times per second which means the visual display will be accurate to a millisecond
+#note: the time the output says is always correct and has nothing to do with the number of itterations per second
+variable: simulation_time
+function simulation_itteration:
+	#make simulation time equal to the time since the simulate function
+	simulation_time = current time - start_time
+	multiply the simulation_time by the time dilation factor
+	#only reported current time will be slower
+	#the time values for when the wave will hit a node are not changed
+	#for example when 1 second in real life passes the code only things 0.1 seconds have passed
+	
+	#get the time the that the wave will reach the next node it will reach
+	hit_time = the time the first element in the wave_propogation_pqueue has
+	
+	#if there is a node which the wave should have reached by now
+	if simulation_time > hit_time:
+		#get the current node and previous node from the priority queue
+		current_node, previous_node = wave_propogation_pqueue.dequeue()
+		
+		for each edge that connects to current_node except the edge from previous_node:
+			edge_time = time it takes to traverse the edge
+			future_node = node on the otherside of the edge
+			
+			wave_propogation_pqueue.enqueue((future_node, current_node), edge_time + hit_time)
+
+
+function get_node:
+	if the node does not exist make it
+	return the node requested
+
+function get_edge:
+	if either of the nodes do not exist make them
+	if the edge does not exist make it
+	return the node requested
+
+function run:
+	create user interface nodes
+	
+	work out which collumns the data is in
+	
+	for each line in the data file:
+		call get_node() for the nodes
+		call get_edge() for the edge
+		set the edge to have the attribute from the data file
+			
+			
+			
+		
+		
+		
+		
+		
+		

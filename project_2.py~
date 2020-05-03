@@ -6,6 +6,25 @@ import sys
 import time
 from ADTs import *
 
+
+#CLI flags
+defaults = False
+animation_speed = 1.0
+#evaluate CLI flags
+i = 0
+while i < len(sys.argv):
+	arg = sys.argv[i]
+	if arg == "-defaults":
+		defaults = True
+		print("using defaults data collumns")
+	if arg.startswith("-animation_speed="):
+		animation_speed = float(arg[17:])
+		#take the reciprocal
+		animation_speed = 1 / animation_speed
+		print("set animation speed to {0}x".format(animation_speed))
+	i += 1
+del i
+
 node_1 = None
 node_2 = None
 active_edge = None
@@ -165,8 +184,14 @@ def on_click(node):
 					#add the edges
 					new_edge_1 = graph.add_edge(node_1, new_node)
 					new_edge_1.set_weight(length_1)
+					new_edge_1.set_attribute("length", length_1)
+					new_edge_1.set_attribute("inner radius", active_edge.attribute("inner radius"))
+					new_edge_1.set_attribute("speed", active_edge.attribute("speed"))
 					new_edge_2 = graph.add_edge(new_node, node_2)
 					new_edge_2.set_weight(length_2)
+					new_edge_2.set_attribute("length", length_2)
+					new_edge_2.set_attribute("inner radius", active_edge.attribute("inner radius"))
+					new_edge_2.set_attribute("speed", active_edge.attribute("speed"))
 					#remove the old edge
 					graph.remove_edge(active_edge)
 					active_edge = None
@@ -183,8 +208,14 @@ def on_click(node):
 					#add the edges
 					new_edge_1 = graph.add_edge(node_1, new_node)
 					new_edge_1.set_weight(length_1)
+					new_edge_1.set_attribute("length", length_1)
+					new_edge_1.set_attribute("inner radius", active_edge.attribute("inner radius"))
+					new_edge_1.set_attribute("speed", active_edge.attribute("speed"))
 					new_edge_2 = graph.add_edge(new_node, node_2)
 					new_edge_2.set_weight(length_2)
+					new_edge_2.set_attribute("length", length_2)
+					new_edge_2.set_attribute("inner radius", active_edge.attribute("inner radius"))
+					new_edge_2.set_attribute("speed", active_edge.attribute("speed"))
 					#remove the old edge
 					graph.remove_edge(active_edge)
 					active_edge = None
@@ -197,7 +228,7 @@ def on_click(node):
 					#record all the surrounging nodes and edge weights
 					things_to_reconect_to = list()
 					for edge in node_1.incident_edges():
-						things_to_reconect_to.append((edge.other_node(node_1), edge.weight()))
+						things_to_reconect_to.append((edge.other_node(node_1), edge.weight(), edge.attribute("speed"), edge.attribute("inner radius")))
 					#remove the current node
 					graph.remove_node(node_1)
 					#add the new node
@@ -206,16 +237,19 @@ def on_click(node):
 					new_node.set_attribute("time", new_thing_time)
 					#reconnect node to it's surroundings
 					for thing in things_to_reconect_to:
-						node_to_conect_to, weight = thing
+						node_to_conect_to, weight, wave_speed, pipe_i_radius = thing
 						new_edge = graph.add_edge(new_node, node_to_conect_to)
 						new_edge.set_weight(weight)
+						new_edge.set_attribute("length", weight)
+						new_edge.set_attribute("inner radius", pipe_i_radius)
+						new_edge.set_attribute("speed", wave_speed
 					#record the break node
 					break_nodes.append(new_node)
 				elif new_thing_type == "s":
 					#record all the surrounging nodes and edge weights
 					things_to_reconect_to = list()
 					for edge in node_1.incident_edges():
-						things_to_reconect_to.append((edge.other_node(node_1), edge.weight()))
+						things_to_reconect_to.append((edge.other_node(node_1), edge.weight(), edge.attribute("speed"), edge.attribute("inner radius")))
 					#remove the current node
 					graph.remove_node(node_1)
 					#add the new node
@@ -223,9 +257,12 @@ def on_click(node):
 					new_node.set_color(Color(150, 50, 150))
 					#reconnect node to it's surroundings
 					for thing in things_to_reconect_to:
-						node_to_conect_to, weight = thing
+						node_to_conect_to, weight, wave_speed, pipe_i_radius = thing
 						new_edge = graph.add_edge(new_node, node_to_conect_to)
 						new_edge.set_weight(weight)
+						new_edge.set_attribute("length", weight)
+						new_edge.set_attribute("inner radius", pipe_i_radius)
+						new_edge.set_attribute("speed", wave_speed)
 					#record the sensor node
 					sensor_nodes.append(new_node)
 
@@ -258,8 +295,16 @@ def simulate():
 	
 	time = 0
 	
-	next_node = get_heighest_piority(time)
-	print(next_node.id())
+	for node in break_nodes:
+		for edge in node.incident_edges():
+			#time in seconds for the wave to move along the pipe
+			time  = edge.attribute("length") / edge.attribute("speed")
+			#convert to miliseconds
+			time *= 1000
+			#multiply by animation time
+			time *= animation_speed
+			print("time is", time)
+			edge.traverse(node, Color.RED, False, time)
 		
 nodes = dict()
 #if the node does not exist make it and return a reference to a node. if the node does exist return a reference to it 
@@ -301,18 +346,13 @@ def run():
 	speed_index = 10
 	
 	#if the user does not specify the -defaults flag then ask then what columns to get the data from
-	if len(sys.argv) > 1:
-		if sys.argv[1] != "-defaults":
-			length_index = input("What collumn is the lengin in: ")
-			diameter_index = input("What collumn is the diameter in: ")
-			thickness_index = input("What collumn is the thicnkess in: ")
-			speed_index = input("What collumn is the speed in: ")
-	else:
+	if not defaults:
 		length_index = input("What collumn is the lengin in: ")
 		diameter_index = input("What collumn is the diameter in: ")
 		thickness_index = input("What collumn is the thicnkess in: ")
 		speed_index = input("What collumn is the speed in: ")
 	
+	#construt the graph
 	with open("pipes.csv", 'r') as csv_file:
 		first = True
 		for line in csv_file:

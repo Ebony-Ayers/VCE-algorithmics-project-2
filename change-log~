@@ -17,4 +17,8 @@
 	Disabled the ability to select the clear node
 2/5/2020:
 	Imported ADTs library from https://github.com/Joseph-Davies/vce-algroithmics-adts
-
+3/5/2020:
+	Added comments to the code where they were needed because it was rather complicated
+3/5/2020:
+	Added proper evaluation of CLI flags
+	Started propogating wave

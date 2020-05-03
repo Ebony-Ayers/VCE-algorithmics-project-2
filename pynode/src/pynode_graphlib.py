@@ -217,6 +217,8 @@ class Node:
 
     def __str__(self):
         return str(self._id)
+    def __repr__(self):
+        return "node({0})".format(str(self._id))
 
 
 class Edge:

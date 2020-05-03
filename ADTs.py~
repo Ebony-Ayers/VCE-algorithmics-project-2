@@ -67,7 +67,7 @@ class priority_queue:
 				has_inserted = True
 				break
 			i += 1
-		self._container.append(packet)
+		self._container.insert(i, packet)
 			
 	def dequeue(self):
 		if len(self._container) == 0: return None

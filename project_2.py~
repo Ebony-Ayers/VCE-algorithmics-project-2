@@ -10,6 +10,7 @@ from ADTs import *
 #CLI flags
 defaults = False
 animation_speed = 1.0
+time_factor = 1.0
 #evaluate CLI flags
 i = 0
 while i < len(sys.argv):
@@ -19,9 +20,10 @@ while i < len(sys.argv):
 		print("using defaults data collumns")
 	if arg.startswith("-animation_speed="):
 		animation_speed = float(arg[17:])
+		time_factor = animation_speed
 		#take the reciprocal
 		animation_speed = 1 / animation_speed
-		print("set animation speed to {0}x".format(animation_speed))
+		print("set animation speed to {0}x".format(time_factor))
 	i += 1
 del i
 
@@ -36,11 +38,15 @@ node_clear = None
 node_start = None
 node_time = None
 
-time = 0
-
 #list of sensors and nodes
 sensor_nodes = list()
 break_nodes = list()
+
+#simulation variables
+start_time = 0
+simulation_time = 0
+wave_propogation_pqueue = priority_queue()
+time_node_value = -1
 
 #reset all selected nodes
 def reset():
@@ -120,7 +126,7 @@ def on_click(node):
 	print("Clicked on node \"{}\"".format(node.id()))
 	
 	#start node
-	if node is node_start:
+	if node is node_start and not is_running:
 		is_running = True
 		simulate()
 		return
@@ -266,45 +272,65 @@ def on_click(node):
 					#record the sensor node
 					sensor_nodes.append(new_node)
 
-def get_heighest_piority(start_time):
-	if len(break_nodes) == 0:
-		Print("Error: not break nodes found")
-		return None
-	i = 0
-	min_time = None
-	min_index = 0
-	while i < len(break_nodes):
-		time = break_nodes[i].attribute("time")
-		if min_time == None and break_nodes[i].attribute("time") > start_time:
-			min_time = break_nodes[i].attribute("time")
-			min_index = i
-		elif (time < min_time and time > start_time):
-			min_time = break_nodes[i].attribute("time")
-			min_index = i
-		i += 1
-	
-	if min_index == -1:
-		print("Error: could not find node with highest piority")
-		return None
-	
-	return break_nodes[i]
-		
+
 def simulate():
-	global time
+	global start_time, wave_propogation_pqueue
 	print("starting simulation")
 	
-	time = 0
-	
+	#put the breaks into a priority queue of when they will trigger
+	#set the node they came from to 0 because they are sources
 	for node in break_nodes:
+		wave_propogation_pqueue.enqueue((node, None), node.attribute("time"))
+	
+	start_time = time.time()
+	print("start time", start_time)
+	print("====================================================")
+	should_continue = True
+	while should_continue:
+		should_continue = simulation_itteration()
+
+def simulation_itteration():
+	global simulation_time, node_time, time_node_value
+	simulation_time = time.time() - start_time
+	simulation_time *= time_factor
+	
+	t_node_val = round(simulation_time, 1)
+	if t_node_val != time_node_value:
+		node_time.set_value("t={0}".format(t_node_val))
+		time_node_value = t_node_val
+	
+	if wave_propogation_pqueue.length() == 0: return False
+	
+	hit_time = wave_propogation_pqueue.front_priority()
+	if simulation_time > hit_time:
+		node, node_from = wave_propogation_pqueue.dequeue()
+		
+		if node in sensor_nodes:
+			print("hit {0} at {1}".format(node.id(), simulation_time))
+		
+		n_to = node.id()
+		n_from = node_from.id() if node_from is not None else "No node"
+		#print("{0} -> {1}".format(n_from, n_to))
+		#print("@ {0}".format(hit_time))
+		#print("----------------------------------------------------")
+		
 		for edge in node.incident_edges():
+			other_node = edge.other_node(node)
+			if other_node is node_from: continue
+			
 			#time in seconds for the wave to move along the pipe
-			time  = edge.attribute("length") / edge.attribute("speed")
+			wave_time  = edge.attribute("length") / edge.attribute("speed")
 			#convert to miliseconds
-			time *= 1000
+			wave_time_ms = wave_time * 1000
 			#multiply by animation time
-			time *= animation_speed
-			print("time is", time)
-			edge.traverse(node, Color.RED, False, time)
+			wave_time_ms *= animation_speed
+			edge.traverse(node, Color.RED, True, wave_time_ms)
+			
+			thing_to_enqueue = (other_node, node)
+			wave_propogation_pqueue.enqueue(thing_to_enqueue, hit_time + wave_time)
+			
+	#continue to the next itteration
+	return True
 		
 nodes = dict()
 #if the node does not exist make it and return a reference to a node. if the node does exist return a reference to it 

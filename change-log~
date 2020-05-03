@@ -23,3 +23,20 @@
 	Added proper evaluation of CLI flags
 	Started propogating wave
 	Fixed new edges created around new node not having required attributes
+3/5/2020:
+	Disable starting the simulation twice
+3/5/2020:
+	Fixed printing of node objects
+	Fixed issues with the ADTs library
+	I stoped just making the wave come out of the breaks.
+	I wanted to make the visualisation happen in real time. To do this I needed to store which nodes to
+	go to in the future in time order. This was done with a prioirty queue as that ADT allows me to get
+	the node with the closest time value associated. The time values were calculated based on pipe
+	length and wave speed. This park wored greate but I had dificulties because I was miss calculating
+	the time. I turns out that I was calculating the integral of time with respect to time. This made
+	everything happen almost instaltly as with in a fraction of a second the program though thirty-thousand
+	second had gone by. Once that was fixed the program mostly worked except that there was a slight
+	error in the priority queue class thich meant that in certain circumstances enqueue operations
+	were not processed. When this was fixed the program worked. Currently the code allows for loops
+	which results in the number of waves exponentially increasing. This wil leventually crash python.
+	

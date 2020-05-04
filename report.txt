@@ -1,0 +1,53 @@
+code: project_2.py
+diary: change-log
+sudocode: algorithm.algorithm
+report: this document
+
+Supported platforms: Linux
+Tested platforms: Ubuntu 18.10 with python 3.6.8
+
+How to run code:
+for each running run the bash script "run.sh"
+For more control run project_2.py from the console with the console arguments "-defaults" and "--animation_speed=x"
+where x in the time dilation factor and with no quotation marks. Recoment values for the animation speed are 0.01 to 0.05
+This represent the animation going slower than real time as the values in the pipes.csv are quite fast
+
+How to use the code:
+to create a break or sensor node between two nodes click then one after the other, they will be lighlighted and the edge between then will go blue.
+go to the terminal the decide weather you want a break (b) or a sensor (s). The select the length from the first node you click you want the new node.
+if the node is a break select when in the measured in seconds the break will occue
+If you want to replace a node with a break or a sensor click the node twice and do the above steps
+
+Undefined behavior (do not do these):
+creating a sensor or node:
+	- selecting negative time values
+	- selecting a negative length
+	- selecting a length greater than the length of the original edge
+	- selecting two nodes then selecting another with out completing the terminal prompt
+running the simulation:
+	- running the simulation with no breaks created
+	- running the simulation then clicking a node
+
+Extra explanation:
+"code explanation.sudocode" - a more english explanation of project_2.py
+"timing logic explanation.txt" - an english explanation of the timing used to control when the user sees animation
+
+Aditional files:
+"LICENCE" - the licence for the "ADTs.py" library
+"pipes.csv" - the data for "project_2.py"
+"README.md" - the github file for the repository
+".gitignore" - the file git uses to ignore certain files from commits
+
+ACTUAL REPORT:
+When creating this I wanted it to happen in real time so all decisions are made real time simulation of the every posibility
+Path finding algorithms like Dijkstra, Froyd-Warshal, A* ect. do not give every posibility in time order so would be inefficiant as they would require extending with a second algorithm
+To go from a known point and to work out all posible future points which may be infinite a backtracking algorithm cannot be used
+Dividing and conquor, decrease and conquor, transform and conquor, and backtracking cannot be used as the problem may be infinite
+Therfore the problem must be solved forwards. As the problem can grow the state at time t must be dependant at the time t-1.
+Therefore the algorithm must pick something to do and then add more to the set of posible future operations.
+To achieve the requirement of the animations being in time order the algorithm must be able to pick the next thing to happen in time order.
+The easiest way to achieve this is a priority queue where the priority is the time.
+
+No major problems were encoutered with the final algorithm as I was fully though out. The initial two algorithms where not though out and so had issues.
+algorithm 1: convert the pipes into a network of cells and do a basic flow simulation. The problem with this is pynode cannot handle more than about a hundred nodes and once and the task required everything be done in pynode. The only efficiant way would be to use a c++ (due to the number of required cells) library which would not be allowed.
+algorithm 2: for each node create a list of times the wave will reach it and search the entire graph for the node which will happen the soonest. This is inificiant as it requires searching each element in each node in the graph. This ends up with a time complexity of n^2 per itteration. The priority queue method is only a time complexity of n

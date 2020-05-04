@@ -1,0 +1,2 @@
+read the file report.txt
+(it's your fault for allowing gotos)

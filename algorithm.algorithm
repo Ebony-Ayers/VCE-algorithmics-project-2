@@ -1,0 +1,7 @@
+take the break nodes and put them in a priority queue where the priority is when the break will happen
+take out a node and look at all the edges around it
+for all the edges except the edge used to get to the node using the attributes on the dge calculate when the connected node wil be reached
+put this node in the priority queue
+while there are sill nodes in the prioirty queue go back to line 2
+
+what this achieves is the node which the wave will reach soonest will be next looked at so that animation will be inorder
